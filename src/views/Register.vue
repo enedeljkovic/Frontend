@@ -1,7 +1,18 @@
 <template>
-  <div class="login-container">
-    <h1>🍲 Prijava</h1>
-    <form @submit.prevent="handleLogin" class="login-form">
+  <div class="register-container">
+    <h1>🍽️ Registracija</h1>
+    <form @submit.prevent="register" class="register-form">
+      <div class="form-group">
+        <label for="username">Korisničko ime:</label>
+        <input
+          type="text"
+          id="username"
+          v-model="username"
+          placeholder="Unesite korisničko ime"
+          required
+        />
+      </div>
+
       <div class="form-group">
         <label for="email">Email:</label>
         <input
@@ -24,13 +35,12 @@
         />
       </div>
 
-      <button type="submit" class="login-button">Prijavi se</button>
-      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
-    </form>
+      <button type="submit" class="register-button">Registriraj se</button>
 
-    <p class="register-link">
-      Nemate račun? <router-link to="/register">Registrirajte se ovdje</router-link>
-    </p>
+      <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+      <p v-if="successMessage" class="success">{{ successMessage }}</p>
+    </form>
+    <p>Već imate račun? <router-link to="/">Prijavite se</router-link></p>
   </div>
 </template>
 
@@ -40,37 +50,42 @@ import axios from 'axios';
 export default {
   data() {
     return {
+      username: '',
       email: '',
       password: '',
       errorMessage: '',
+      successMessage: ''
     };
   },
   methods: {
-    async handleLogin() {
+    async register() {
       try {
-        const response = await axios.post('http://localhost:3001/api/v1/login', {
+        const response = await axios.post('http://localhost:3001/api/v1/register', {
+          username: this.username,
           email: this.email,
-          password: this.password,
+          password: this.password
         });
 
-        if (response.data.token) {
-          localStorage.setItem('user-token', response.data.token);
-          console.log('Prijava uspješna!', response.data);
-
-          this.$router.push('/profile');
+        if (response.status === 201) {
+          this.successMessage = 'Registracija uspješna! Možete se prijaviti.';
+          this.errorMessage = '';
+          this.username = '';
+          this.email = '';
+          this.password = '';
         }
       } catch (error) {
-        console.error('Greška pri prijavi', error);
-        this.errorMessage = 'Neispravni podaci za prijavu!';
+        console.error('Greška pri registraciji:', error);
+        this.successMessage = '';
+        this.errorMessage = error.response?.data?.message || 'Došlo je do greške.';
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
 <style scoped>
-.login-container {
-  max-width: 400px;
+.register-container {
+  max-width: 450px;
   margin: 80px auto;
   padding: 2rem;
   background: linear-gradient(135deg, #fdf6e3, #fef9f2);
@@ -86,7 +101,7 @@ h1 {
   font-size: 2rem;
 }
 
-.login-form {
+.register-form {
   display: flex;
   flex-direction: column;
 }
@@ -117,7 +132,7 @@ input:focus {
   box-shadow: 0 0 5px rgba(255, 183, 77, 0.5);
 }
 
-.login-button {
+.register-button {
   margin-top: 1rem;
   padding: 0.8rem;
   background-color: #ff9800;
@@ -130,7 +145,7 @@ input:focus {
   transition: background-color 0.3s;
 }
 
-.login-button:hover {
+.register-button:hover {
   background-color: #fb8c00;
 }
 
@@ -140,20 +155,9 @@ input:focus {
   font-weight: 500;
 }
 
-.register-link {
-  margin-top: 1.5rem;
-  font-size: 0.95rem;
-  color: #6d4c41;
-}
-
-.register-link a {
-  color: #ff9800;
-  font-weight: bold;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.register-link a:hover {
-  color: #fb8c00;
+.success {
+  color: green;
+  margin-top: 1rem;
+  font-weight: 500;
 }
 </style>

@@ -1,57 +1,127 @@
 <template>
-  <div class="home-container">
-    <h1>Dobrodošli!</h1>
-    <p>Ovo je početna stranica vaše Recipe App aplikacije.</p>
-    
-    <router-link to="/profile" class="profile-button">
-      ➤ Idi na profil
-    </router-link>
+  <div class="home-page">
+    <div class="header">
+      <h1 class="title">🍽️ InstaRecipe - Svi recepti</h1>
+      <router-link to="/add-recipe" class="add-btn">➕ Dodaj novi recept</router-link>
+    </div>
+
+    <div class="recipes-grid">
+      <div v-for="recipe in recipes" :key="recipe.id" class="recipe-card">
+        <img :src="getRecipeImage(recipe)" alt="Recept slika" class="recipe-img" />
+        <div class="recipe-info">
+          <h2>{{ recipe.name }}</h2>
+          <p><strong>Kategorija:</strong> {{ recipe.category }}</p>
+          <p><strong>Sastojci:</strong> {{ recipe.ingredients.join(', ') }}</p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
-  name: 'Home',
-}
+  data() {
+    return {
+      recipes: [],
+    };
+  },
+  async mounted() {
+    try {
+      const response = await axios.get('http://localhost:3001/api/v1/recipes');
+      this.recipes = response.data.recipes.map(r => ({
+        ...r,
+        ingredients: typeof r.ingredients === 'string' ? JSON.parse(r.ingredients) : r.ingredients,
+      }));
+    } catch (error) {
+      console.error('Greška pri dohvaćanju recepata:', error);
+    }
+  },
+  methods: {
+    getRecipeImage(recipe) {
+      if (recipe.image_url) return `http://localhost:3001${recipe.image_url}`;
+      const lower = recipe.category.toLowerCase();
+      if (lower.includes('vegan')) return '/images/vegan.jpg';
+      if (lower.includes('vegetar')) return '/images/vegetarian.jpg';
+      if (lower.includes('meso') || lower.includes('meat')) return '/images/meat.jpg';
+      if (lower.includes('dessert')) return '/images/dessert.jpg';
+      return '/images/default.jpg';
+    },
+  },
+};
 </script>
 
 <style scoped>
-.home-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  min-height: 80vh;
-  background-color: #f8f9fa;
+.home-page {
   padding: 2rem;
-  text-align: center;
-  border-radius: 12px;
+  font-family: 'Segoe UI', sans-serif;
 }
 
-h1 {
-  color: #2c3e50;
-  font-size: 2.5rem;
-  margin-bottom: 1rem;
-}
-
-p {
-  font-size: 1.2rem;
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
   margin-bottom: 2rem;
 }
 
-.profile-button {
+.title {
+  color: #e67e22;
+  font-size: 2rem;
+  margin: 0;
+}
+
+.add-btn {
   background-color: #42b983;
   color: white;
-  padding: 0.8rem 1.5rem;
-  border: none;
-  border-radius: 8px;
+  padding: 0.7rem 1.2rem;
+  border-radius: 10px;
   text-decoration: none;
   font-weight: bold;
-  font-size: 1rem;
   transition: background-color 0.3s;
 }
 
-.profile-button:hover {
+.add-btn:hover {
   background-color: #369b6d;
+}
+
+.recipes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.recipe-card {
+  background: #fffdfa;
+  border-radius: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.recipe-card:hover {
+  transform: translateY(-5px);
+}
+
+.recipe-img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+}
+
+.recipe-info {
+  padding: 1rem;
+}
+
+.recipe-info h2 {
+  color: #6d4c41;
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+}
+
+.recipe-info p {
+  margin: 0.3rem 0;
+  color: #333;
 }
 </style>

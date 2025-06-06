@@ -34,6 +34,9 @@
       </label>
 
       <button type="submit">✅ Spremi recept</button>
+
+      <p v-if="successMessage" class="success-msg">{{ successMessage }}</p>
+      <p v-if="errorMessage" class="error-msg">{{ errorMessage }}</p>
     </form>
   </div>
 </template>
@@ -51,6 +54,8 @@ export default {
         image: null,
       },
       ingredientsInput: '',
+      successMessage: '',
+      errorMessage: ''
     };
   },
   methods: {
@@ -60,9 +65,11 @@ export default {
     async submitRecipe() {
       const formData = new FormData();
       formData.append('name', this.recipe.name);
-      formData.append('category', this.recipe.category);
       formData.append('description', this.recipe.description);
-      formData.append('image', this.recipe.image);
+      formData.append('category', this.recipe.category);
+      if (this.recipe.image) {
+        formData.append('image', this.recipe.image);
+      }
 
       const ingredientsArray = this.ingredientsInput
         .split(',')
@@ -73,18 +80,22 @@ export default {
 
       try {
         await axios.post('http://localhost:3001/api/v1/recipes', formData, {
-          headers: {
-            'Content-Type': 'multipart/form-data',
-          },
+          headers: { 'Content-Type': 'multipart/form-data' }
         });
-        alert('Recept uspješno dodan!');
-        this.$router.push('/home');
+
+        this.successMessage = 'Recept uspješno dodan!';
+        this.errorMessage = '';
+        this.recipe = { name: '', description: '', category: '', image: null };
+        this.ingredientsInput = '';
+
+        this.$router.push('/home'); // automatski povratak
       } catch (err) {
         console.error('Greška pri dodavanju recepta:', err);
-        alert('Došlo je do pogreške prilikom spremanja recepta.');
+        this.errorMessage = 'Greška pri dodavanju recepta.';
+        this.successMessage = '';
       }
-    },
-  },
+    }
+  }
 };
 </script>
 
@@ -139,5 +150,17 @@ button {
 
 button:hover {
   background-color: #fb8c00;
+}
+
+.success-msg {
+  color: green;
+  font-weight: bold;
+  margin-top: 1rem;
+}
+
+.error-msg {
+  color: red;
+  font-weight: bold;
+  margin-top: 1rem;
 }
 </style>

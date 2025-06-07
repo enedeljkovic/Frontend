@@ -1,9 +1,13 @@
 <template>
   <div id="app">
-    <header class="main-header">
-      <h1>🍽️ InstaRecipe</h1>
-    </header>
-    <router-view />
+    <div class="background">
+      <header class="main-header">
+        <h1>🍽️ InstaRecipe</h1>
+      </header>
+      <div class="content">
+        <router-view />
+      </div>
+    </div>
   </div>
 </template>
 
@@ -13,7 +17,25 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
+
+.background {
+  background-image: url('/images/background.png'); 
+  background-size: cover;
+  background-repeat: repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+}
+
+
+.content {
+  background-color: rgba(255, 255, 255, 0.7); 
+  min-height: calc(100vh - 80px);
+  padding: 2rem;
+}
+
+
+
 .main-header {
   background-color: #fff4e6;
   padding: 1rem;

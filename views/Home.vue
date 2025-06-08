@@ -1,3 +1,6 @@
+home novi
+
+
 <template>
   <div class="home-page">
     <div class="header">
@@ -21,9 +24,16 @@
         <option value="vegan">Vegansko</option>
         <option value="meat">Mesno</option>
       </select>
+      <select v-model="viewMode" class="category-select">
+        <option value="all">Svi recepti</option>
+        <option value="favorites">Omiljeni recepti</option>
+      </select>
     </div>
 
-    <h2 class="section-title">🍴 Svi recepti</h2>
+    <h2 class="section-title">
+      {{ viewMode === 'favorites' ? '⭐ Omiljeni recepti' : '🍴 Svi recepti' }}
+    </h2>
+
     <div class="recipes-grid">
       <div
         v-for="recipe in filteredRecipes"
@@ -67,12 +77,14 @@ export default {
       searchHistory: [],
       searchIngredient: '',
       selectedCategory: '',
-      userId: 1 // zamijeni s pravim ID-em ako treba
+      viewMode: 'all',
+      userId: 1
     };
   },
   computed: {
     filteredRecipes() {
-      return this.recipes.filter(recipe => {
+      const list = this.viewMode === 'favorites' ? this.favorites : this.recipes;
+      return list.filter(recipe => {
         const matchCategory =
           !this.selectedCategory || recipe.category.toLowerCase() === this.selectedCategory;
         const matchIngredient =
@@ -107,7 +119,13 @@ export default {
     async fetchFavorites() {
       try {
         const res = await axios.get(`http://localhost:3001/api/v1/user/${this.userId}/favorites`);
-        this.favorites = res.data.favorites || [];
+        this.favorites = (res.data.favorites || []).map(r => ({
+          ...r,
+          ingredients:
+            typeof r.ingredients === 'string'
+              ? r.ingredients.replace(/[{}"]/g, '').split(',').map(i => i.trim())
+              : r.ingredients
+        }));
       } catch (error) {
         console.error('Greška pri dohvaćanju omiljenih:', error);
       }
@@ -144,7 +162,10 @@ export default {
           await axios.post(`http://localhost:3001/api/v1/user/${this.userId}/favorites`, {
             recipeId: recipe.id
           });
-          this.favorites.push(recipe);
+          this.favorites.push({
+            ...recipe,
+            ingredients: recipe.ingredients
+          });
         } catch (err) {
           console.error('Greška pri dodavanju u omiljene:', err);
         }

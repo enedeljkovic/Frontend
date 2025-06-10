@@ -31,6 +31,10 @@
     <p class="register-link">
       Nemate račun? <router-link to="/register">Registrirajte se ovdje</router-link>
     </p>
+
+    <p class="admin-link">
+      Jeste li administrator? <router-link to="/admin-login">Prijava za admina</router-link>
+    </p>
   </div>
 </template>
 
@@ -55,8 +59,6 @@ export default {
 
         if (response.data.token) {
           localStorage.setItem('user-token', response.data.token);
-          console.log('Prijava uspješna!', response.data);
-
           this.$router.push('/profile');
         }
       } catch (error) {
@@ -140,20 +142,23 @@ input:focus {
   font-weight: 500;
 }
 
-.register-link {
-  margin-top: 1.5rem;
+.register-link,
+.admin-link {
+  margin-top: 1.2rem;
   font-size: 0.95rem;
   color: #6d4c41;
 }
 
-.register-link a {
+.register-link a,
+.admin-link a {
   color: #ff9800;
   font-weight: bold;
   text-decoration: none;
   transition: color 0.3s;
 }
 
-.register-link a:hover {
+.register-link a:hover,
+.admin-link a:hover {
   color: #fb8c00;
 }
 </style>

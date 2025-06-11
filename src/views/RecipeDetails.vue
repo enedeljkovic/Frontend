@@ -5,9 +5,25 @@
       <div class="recipe-info">
         <h1>{{ recipe.name }}</h1>
         <p><strong>Kategorija:</strong> {{ recipe.category }}</p>
-        <p><strong>Opis:</strong> {{ recipe.description }}</p>
-        <p><strong>Sastojci:</strong> {{ recipe.ingredients.join(', ') }}</p>
-        <button @click="addToFavorites">❤️ Dodaj u omiljene</button>
+        <p><strong>Opis:</strong></p>
+           <p v-html="formatDescription(recipe.description)"></p>
+
+        <div class="ingredients-section">
+          <h3>Sastojci i zamjene:</h3>
+          <ul>
+            <li v-for="ingredient in recipe.ingredients" :key="ingredient">
+              <strong>{{ ingredient }}</strong>
+              <span v-if="substitutes[ingredient] && substitutes[ingredient].length">
+                – zamjene: {{ substitutes[ingredient].join(', ') }}
+              </span>
+              <span v-else>– nema zamjena</span>
+            </li>
+          </ul>
+        </div>
+
+        <button v-if="!isFavorite" @click="addToFavorites">❤️ Dodaj u omiljene</button>
+        <button v-else @click="removeFromFavorites">💔 Makni iz omiljenih</button>
+
         <button @click="saveToHistory">💾 Spremi pretragu</button>
       </div>
     </div>
@@ -53,71 +69,158 @@ export default {
         content: '',
         rating: ''
       },
-      userId: 1 
+      isFavorite: false,
+      substitutes: {},
+      userId: 3,
+      substitutesMap: {
+        "mlijeko": ["biljno mlijeko (zobeno, bademovo)"],
+        "jaje": ["chia sjemenke + voda"],
+        "maslac": ["biljni margarin"],
+        "brašno": ["zobeno brašno"],
+        "šećer": ["med"],
+        "vanilin šećer": ["vanilija ekstrakt"],
+        "ulje": ["maslac"],
+        "majoneza": ["grčki jogurt"],
+        "vrhnje": ["kokosovo mlijeko"],
+        "sol": ["soja umak"],
+        "sir": ["nutritivni kvasac"],
+        "piletina": ["tofu"],
+        "govedina": ["seitan"],
+        "riba": ["gljive"],
+        "mljeveno meso": ["leća"],
+        "jogurt": ["sojin jogurt", "biljni jogurt", "kiselo vrhnje"],
+        "maslinovo ulje": ["ulje repice", "avokado ulje"],
+        "parmezan": ["prepržene krušne mrvice", "nutritivni kvasac"],
+        "krumpir": ["slatki krumpir"],
+        "tjestenina": ["tikvice rezanci", "rižina tjestenina"],
+        "kvasac": ["soda bikarbona + ocat", "soda bikarbona + limun"],
+        "čokolada": ["kakao + kokosovo ulje", "karob prah"],
+        "sladoled": ["zamrznuti banana-blend"],
+        "vrhnje za kuhanje": ["kašica od indijskih oraščića", "biljna zamjena"],
+        "šlag": ["kokosova krema", "kokosov šlag"],
+        "kvasac za pizzu": ["soda + limun"],
+        "sirup od agave": ["javorov sirup"],
+        "mljeveni lan": ["zamjena za jaje"],
+        "mljeveni orasi": ["mljeveni suncokret"],
+        "mljeveni bademi": ["kokosovo brašno"],
+        "mljeveni keks": ["zobene pahuljice"],
+        "kukuruz": ["mladi grašak"],
+        "grašak": ["leća"],
+        "leća": ["slanutak"],
+        "slanutak": ["bijeli grah"],
+        "bijeli grah": ["crveni grah"],
+        "crveni grah": ["crna soja"],
+        "zobene pahuljice": ["rižini krekeri"],
+        "rižini krekeri": ["kukuruzne pahuljice"],
+        "kukuruzne pahuljice": ["cornflakes bez šećera"]
+      }
     };
   },
   methods: {
     async fetchRecipe() {
       const id = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:3001/api/v1/recipes/${id}`);
-        const r = response.data.recipe;
+        const res = await axios.get(`http://localhost:3001/api/v1/recipes/${id}`);
+        const r = res.data.recipe;
         this.recipe = {
           ...r,
-          ingredients: typeof r.ingredients === 'string' ? r.ingredients.replace(/[{}"]/g, '').split(',') : r.ingredients
+          ingredients: typeof r.ingredients === 'string'
+            ? r.ingredients.replace(/[{}"]/g, '').split(',').map(i => i.trim())
+            : r.ingredients
         };
+        this.fetchSubstitutes();
       } catch (err) {
         console.error('Greška pri dohvaćanju recepta:', err);
       }
     },
+    fetchSubstitutes() {
+      for (const ing of this.recipe.ingredients) {
+        const clean = ing
+          .toLowerCase()
+          .replace(/[0-9]/g, '')
+          .replace(/[^a-zA-Zćčžšđ\s]/g, '')
+          .trim()
+          .split(' ')
+          .filter(w => w.length > 2)
+          .pop();
+
+        this.substitutes[ing] = this.substitutesMap[clean] || [];
+      }
+    },
+    formatDescription(text) {
+      return text ? text.replace(/\n/g, '<br>') : '';
+    },
     async fetchComments() {
-      const id = this.$route.params.id;
       try {
-        const response = await axios.get(`http://localhost:3001/api/v1/recipes/${id}/comments`);
-        this.comments = response.data.comments;
+        const res = await axios.get(`http://localhost:3001/api/v1/recipes/${this.recipe.id}/comments`);
+        this.comments = res.data.comments;
       } catch (err) {
         console.error('Greška pri dohvaćanju komentara:', err);
       }
     },
-    async submitComment() {
-      const id = this.$route.params.id;
+    async checkIfFavorite() {
       try {
-        await axios.post(`http://localhost:3001/api/v1/recipes/${id}/comments`, this.newComment);
-        this.newComment = { content: '', rating: '' };
-        this.fetchComments();
+        const res = await axios.get(`http://localhost:3001/api/v1/user/${this.userId}/favorites`);
+        this.isFavorite = res.data.favorites.some(f => f.id === this.recipe.id);
       } catch (err) {
-        console.error('Greška pri slanju komentara:', err);
+        console.error('Greška pri dohvaćanju favorita:', err);
       }
     },
     async addToFavorites() {
-  if (!this.recipe || !this.recipe.id) {
-    alert('Recept nije ispravno učitan.');
-    return;
-  }
-
-  try {
-    const res = await axios.post(`http://localhost:3001/api/v1/user/${this.userId}/favorites`, {
-      recipeId: this.recipe.id
-    });
-    alert(res.data.message || 'Dodano u omiljene!');
-  } catch (err) {
-    console.error('Greška pri dodavanju u omiljene:', err);
-    alert(err.response?.data?.message || 'Greška pri dodavanju u omiljene.');
-  }
+      try {
+        await axios.post(`http://localhost:3001/api/v1/user/${this.userId}/favorites`, {
+          recipeId: this.recipe.id
+        });
+        this.isFavorite = true;
+      } catch (err) {
+        console.error('Greška pri dodavanju u omiljene:', err);
+      }
+    },
+    async removeFromFavorites() {
+      try {
+        await axios.delete(`http://localhost:3001/api/v1/user/${this.userId}/favorites/${this.recipe.id}`);
+        this.isFavorite = false;
+      } catch (err) {
+        console.error('Greška pri uklanjanju iz omiljenih:', err);
+      }
+    },
+    async saveToHistory() {
+      try {
+        await axios.post('http://localhost:3001/api/v1/history', {
+          ingredientsList: this.recipe.ingredients
+        });
+        alert('Recept spremljen u povijest!');
+      } catch (err) {
+        console.error('Greška pri spremanju u povijest:', err);
+      }
     },
     getRecipeImage(recipe) {
       if (recipe.image_url) return `http://localhost:3001${recipe.image_url}`;
-      const lower = recipe.category.toLowerCase();
-      if (lower.includes('vegan')) return '/images/vegan.jpg';
-      if (lower.includes('vegetar')) return '/images/vegetarian.jpg';
-      if (lower.includes('meso') || lower.includes('meat')) return '/images/meat.jpg';
-      if (lower.includes('dessert')) return '/images/dessert.jpg';
+      const cat = recipe.category.toLowerCase();
+      if (cat.includes('vegan')) return '/images/vegan.jpg';
+      if (cat.includes('vegetar')) return '/images/vegetarian.jpg';
+      if (cat.includes('meat') || cat.includes('meso')) return '/images/meat.jpg';
+      if (cat.includes('dessert')) return '/images/dessert.jpg';
       return '/images/default.jpg';
+    },
+    async submitComment() {
+      try {
+        const res = await axios.post(`http://localhost:3001/api/v1/recipes/${this.recipe.id}/comments`, {
+          content: this.newComment.content,
+          rating: this.newComment.rating
+        });
+        this.comments.push(res.data.comment);
+        this.newComment.content = '';
+        this.newComment.rating = '';
+      } catch (err) {
+        console.error('Greška pri slanju komentara:', err);
+      }
     }
   },
-  mounted() {
-    this.fetchRecipe();
-    this.fetchComments();
+  async mounted() {
+    await this.fetchRecipe();
+    await this.fetchComments();
+    await this.checkIfFavorite();
   }
 };
 </script>
@@ -143,6 +246,15 @@ export default {
 .recipe-info h1 {
   margin-top: 1rem;
   color: #e67e22;
+}
+
+.ingredients-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.ingredients-section li {
+  margin-bottom: 0.5rem;
 }
 
 button {

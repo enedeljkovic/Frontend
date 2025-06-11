@@ -10,7 +10,12 @@
 
       <button type="submit">Prijavi se</button>
     </form>
+
     <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
+
+    <p class="back-link">
+      👤 Natrag na <router-link to="/login">korisničku prijavu</router-link>
+    </p>
   </div>
 </template>
 
@@ -53,11 +58,13 @@ export default {
   background-color: #fff;
   border-radius: 10px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center;
 }
 
 label {
   display: block;
   margin: 1rem 0 0.5rem;
+  text-align: left;
 }
 
 input {
@@ -80,5 +87,16 @@ button {
 .error {
   color: red;
   margin-top: 1rem;
+}
+
+.back-link {
+  margin-top: 1.5rem;
+  font-size: 0.95rem;
+}
+
+.back-link a {
+  color: #f57c00;
+  text-decoration: none;
+  font-weight: bold;
 }
 </style>

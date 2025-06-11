@@ -1,46 +1,81 @@
 <template>
   <div class="admin-panel">
-    <h1>👨‍💼 Admin Panel</h1>
+    <h1>👑 Admin Panel</h1>
 
+    <button @click="logoutAdmin" class="logout-button">Odjava</button>
+
+    <!-- Korisnici -->
     <section>
-      <h2>Korisnici</h2>
-      <ul>
-        <li v-for="user in users" :key="user.id">
-          {{ user.email }}
-          <button @click="deleteUser(user.id)">Obriši</button>
-        </li>
-      </ul>
+      <h2>👥 Korisnici</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Email</th>
+            <th>Akcije</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="user in users" :key="user.id">
+            <td>{{ user.id }}</td>
+            <td>{{ user.email }}</td>
+            <td>
+              <button @click="deleteUser(user.id)">Obriši</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
+    <!-- Recepti -->
     <section>
-      <h2>Recepti</h2>
-      <ul>
-        <li v-for="recipe in recipes" :key="recipe.id">
-          {{ recipe.name }}
-          <button @click="deleteRecipe(recipe.id)">Obriši</button>
-        </li>
-      </ul>
+      <h2>🍽️ Recepti</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Naziv</th>
+            <th>Kategorija</th>
+            <th>Akcije</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="recipe in recipes" :key="recipe.id">
+            <td>{{ recipe.id }}</td>
+            <td>{{ recipe.name }}</td>
+            <td>{{ recipe.category }}</td>
+            <td>
+              <button @click="deleteRecipe(recipe.id)">Obriši</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
+    <!-- Komentari -->
     <section>
-      <h2>Komentari</h2>
-      <ul>
-        <li v-for="comment in comments" :key="comment.id">
-          {{ comment.content }}
-          <button @click="deleteComment(comment.id)">Obriši</button>
-        </li>
-      </ul>
+      <h2>💬 Komentari</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Komentar</th>
+            <th>Akcije</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="comment in comments" :key="comment.id">
+            <td>{{ comment.id }}</td>
+            <td>{{ comment.content }}</td>
+            <td>
+              <button @click="deleteComment(comment.id)">Obriši</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </section>
 
-    <section>
-      <h2>Zamjene sastojaka</h2>
-      <ul>
-        <li v-for="sub in substitutions" :key="sub.id">
-          {{ sub.ingredient }} → {{ sub.substitute }}
-          <button @click="deleteSubstitution(sub.id)">Obriši</button>
-        </li>
-      </ul>
-    </section>
+    <p v-if="errorMessage" class="error">{{ errorMessage }}</p>
   </div>
 </template>
 
@@ -53,80 +88,145 @@ export default {
       users: [],
       recipes: [],
       comments: [],
-      substitutions: []
+      errorMessage: '',
+      adminToken: localStorage.getItem('adminToken'),
     };
   },
-  async mounted() {
-    const token = localStorage.getItem('adminToken');
-    const headers = { Authorization: `Bearer ${token}` };
-
-    try {
-      const [users, recipes, comments, substitutions] = await Promise.all([
-        axios.get('http://localhost:3001/api/v1/admin/users', { headers }),
-        axios.get('http://localhost:3001/api/v1/admin/recipes', { headers }),
-        axios.get('http://localhost:3001/api/v1/admin/comments', { headers }),
-        axios.get('http://localhost:3001/api/v1/admin/substitutions', { headers })
-      ]);
-      this.users = users.data.users;
-      this.recipes = recipes.data.recipes;
-      this.comments = comments.data.comments;
-      this.substitutions = substitutions.data.substitutions;
-    } catch (err) {
-      console.error('Greška pri dohvaćanju admin podataka:', err);
+  methods: {
+    async fetchUsers() {
+      try {
+        const res = await axios.get('http://localhost:3001/api/v1/admin/users', {
+          headers: { Authorization: `Bearer ${this.adminToken}` },
+        });
+        this.users = res.data.users;
+      } catch (err) {
+        this.errorMessage = 'Ne mogu dohvatiti korisnike';
+      }
+    },
+    async deleteUser(userId) {
+      if (!confirm('Jeste li sigurni da želite obrisati korisnika?')) return;
+      try {
+        await axios.delete(`http://localhost:3001/api/v1/admin/user/${userId}`, {
+          headers: { Authorization: `Bearer ${this.adminToken}` },
+        });
+        this.fetchUsers();
+      } catch (err) {
+        this.errorMessage = 'Greška pri brisanju korisnika';
+      }
+    },
+    async fetchRecipes() {
+      try {
+        const res = await axios.get('http://localhost:3001/api/v1/admin/recipes', {
+          headers: { Authorization: `Bearer ${this.adminToken}` },
+        });
+        this.recipes = res.data.recipes;
+      } catch (err) {
+        this.errorMessage = 'Ne mogu dohvatiti recepte';
+      }
+    },
+    async deleteRecipe(recipeId) {
+      if (!confirm('Jeste li sigurni da želite obrisati recept?')) return;
+      try {
+        await axios.delete(`http://localhost:3001/api/v1/admin/recipe/${recipeId}`, {
+          headers: { Authorization: `Bearer ${this.adminToken}` },
+        });
+        this.fetchRecipes();
+      } catch (err) {
+        this.errorMessage = 'Greška pri brisanju recepta';
+      }
+    },
+    async fetchComments() {
+      try {
+        const res = await axios.get('http://localhost:3001/api/v1/admin/comments', {
+          headers: { Authorization: `Bearer ${this.adminToken}` },
+        });
+        this.comments = res.data.comments;
+      } catch (err) {
+        this.errorMessage = 'Ne mogu dohvatiti komentare';
+      }
+    },
+    async deleteComment(commentId) {
+      if (!confirm('Jeste li sigurni da želite obrisati komentar?')) return;
+      try {
+        await axios.delete(`http://localhost:3001/api/v1/admin/comment/${commentId}`, {
+          headers: { Authorization: `Bearer ${this.adminToken}` },
+        });
+        this.fetchComments();
+      } catch (err) {
+        this.errorMessage = 'Greška pri brisanju komentara';
+      }
+    },
+    logoutAdmin() {
+      localStorage.removeItem('adminToken');
+      this.$router.push('/admin-login');
     }
   },
-  methods: {
-    async deleteUser(id) {
-      const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:3001/api/v1/admin/user/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      this.users = this.users.filter(u => u.id !== id);
-    },
-    async deleteRecipe(id) {
-      const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:3001/api/v1/admin/recipe/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      this.recipes = this.recipes.filter(r => r.id !== id);
-    },
-    async deleteComment(id) {
-      const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:3001/api/v1/admin/comment/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      this.comments = this.comments.filter(c => c.id !== id);
-    },
-    async deleteSubstitution(id) {
-      const token = localStorage.getItem('adminToken');
-      await axios.delete(`http://localhost:3001/api/v1/admin/substitution/${id}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      this.substitutions = this.substitutions.filter(s => s.id !== id);
-    }
+  mounted() {
+    this.fetchUsers();
+    this.fetchRecipes();
+    this.fetchComments();
   }
 };
 </script>
 
 <style scoped>
 .admin-panel {
-  max-width: 1000px;
-  margin: 2rem auto;
-  font-family: 'Segoe UI', sans-serif;
+  padding: 2rem;
+  max-width: 1100px;
+  margin: auto;
+  background: #fefefe;
 }
+
+h1 {
+  text-align: center;
+  color: #333;
+  margin-bottom: 2rem;
+}
+
 section {
-  margin-top: 2rem;
+  margin-bottom: 2.5rem;
 }
-h2 {
-  color: #e67e22;
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 1rem;
 }
-button {
-  margin-left: 1rem;
-  background-color: #e74c3c;
+
+th, td {
+  border: 1px solid #ddd;
+  padding: 0.8rem;
+  text-align: left;
+}
+
+th {
+  background-color: #ffa726;
   color: white;
-  padding: 0.3rem 0.8rem;
+}
+
+button {
+  background-color: #e53935;
+  color: white;
   border: none;
+  padding: 0.5rem 1rem;
   border-radius: 6px;
   cursor: pointer;
+}
+
+button:hover {
+  background-color: #d32f2f;
+}
+
+.logout-button {
+  float: right;
+  background-color: #607d8b;
+  margin-bottom: 1rem;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 2rem;
 }
 </style>

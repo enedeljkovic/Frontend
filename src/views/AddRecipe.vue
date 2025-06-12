@@ -24,9 +24,10 @@
       </label>
 
       <label>
-        Sastojci (odvojeni zarezima):
-        <input type="text" v-model="ingredientsInput" placeholder="npr. krumpir, meso, luk" required />
-      </label>
+  Sastojci (svaki u novi red):
+  <textarea v-model="ingredientsInput" placeholder="npr. 800 g krumpira\n1 žlica soli" rows="6" required></textarea>
+</label>
+
 
       <label>
         Slika jela:
@@ -85,10 +86,14 @@ export default {
 
         this.successMessage = 'Recept uspješno dodan!';
         this.errorMessage = '';
-        this.recipe = { name: '', description: '', category: '', image: null };
+        this.recipe.name = '';
+this.recipe.description = '';
+this.recipe.category = '';
+this.recipe.image = null;
+
         this.ingredientsInput = '';
 
-        this.$router.push('/home'); // automatski povratak
+        this.$router.push('/home'); 
       } catch (err) {
         console.error('Greška pri dodavanju recepta:', err);
         this.errorMessage = 'Greška pri dodavanju recepta.';

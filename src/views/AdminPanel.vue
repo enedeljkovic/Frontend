@@ -95,7 +95,7 @@ export default {
   methods: {
     async fetchUsers() {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/users` {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/users`, {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.users = res.data.users;

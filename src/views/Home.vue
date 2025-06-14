@@ -104,7 +104,7 @@ export default {
   methods: {
     async fetchRecipes() {
       try {
-        const response = await axios.get('http://localhost:3001/api/v1/recipes');
+        const response = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/recipes');
         this.recipes = response.data.recipes.map(r => ({
           ...r,
           ingredients:
@@ -118,7 +118,7 @@ export default {
     },
     async fetchFavorites() {
       try {
-        const res = await axios.get(`http://localhost:3001/api/v1/user/${this.userId}/favorites`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites`);
         this.favorites = (res.data.favorites || []).map(r => ({
           ...r,
           ingredients:
@@ -132,14 +132,14 @@ export default {
     },
     async fetchSearchHistory() {
       try {
-        const res = await axios.get('http://localhost:3001/api/v1/history');
+        const res = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/history');
         this.searchHistory = res.data.searchHistory || [];
       } catch (error) {
         console.error('Greška pri dohvaćanju povijesti:', error);
       }
     },
     getRecipeImage(recipe) {
-      if (recipe.image_url) return `http://localhost:3001${recipe.image_url}`;
+      if (recipe.image_url) return `${import.meta.env.VITE_API_BASE_URL}${recipe.image_url}`;
       const cat = recipe.category.toLowerCase();
       if (cat.includes('vegan')) return '/images/vegan.jpg';
       if (cat.includes('vegetar')) return '/images/vegetarian.jpg';
@@ -152,14 +152,14 @@ export default {
     async toggleFavorite(recipe) {
       if (this.isFavorite(recipe)) {
         try {
-          await axios.delete(`http://localhost:3001/api/v1/user/${this.userId}/favorites/${recipe.id}`);
+          await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites/${recipe.id}`);
           this.favorites = this.favorites.filter(fav => fav.id !== recipe.id);
         } catch (err) {
           console.error('Greška pri uklanjanju iz omiljenih:', err);
         }
       } else {
         try {
-          await axios.post(`http://localhost:3001/api/v1/user/${this.userId}/favorites`, {
+          await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites`, {
             recipeId: recipe.id
           });
           this.favorites.push({

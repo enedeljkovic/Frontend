@@ -60,7 +60,7 @@ export default {
   methods: {
     async register() {
       try {
-        const response = await axios.post('http://localhost:3001/api/v1/register', {
+        const response = await axios.post('${import.meta.env.VITE_API_BASE_URL}/api/v1/register', {
           username: this.username,
           email: this.email,
           password: this.password

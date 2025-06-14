@@ -95,7 +95,7 @@ export default {
   methods: {
     async fetchUsers() {
       try {
-        const res = await axios.get('http://localhost:3001/api/v1/admin/users', {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/users` {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.users = res.data.users;
@@ -106,7 +106,7 @@ export default {
     async deleteUser(userId) {
       if (!confirm('Jeste li sigurni da želite obrisati korisnika?')) return;
       try {
-        await axios.delete(`http://localhost:3001/api/v1/admin/user/${userId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/user/${userId}`, {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.fetchUsers();
@@ -116,7 +116,7 @@ export default {
     },
     async fetchRecipes() {
       try {
-        const res = await axios.get('http://localhost:3001/api/v1/admin/recipes', {
+        const res = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/recipes', {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.recipes = res.data.recipes;
@@ -127,7 +127,7 @@ export default {
     async deleteRecipe(recipeId) {
       if (!confirm('Jeste li sigurni da želite obrisati recept?')) return;
       try {
-        await axios.delete(`http://localhost:3001/api/v1/admin/recipe/${recipeId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/recipe/${recipeId}`, {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.fetchRecipes();
@@ -137,7 +137,7 @@ export default {
     },
     async fetchComments() {
       try {
-        const res = await axios.get('http://localhost:3001/api/v1/admin/comments', {
+        const res = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/comments', {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.comments = res.data.comments;
@@ -148,7 +148,7 @@ export default {
     async deleteComment(commentId) {
       if (!confirm('Jeste li sigurni da želite obrisati komentar?')) return;
       try {
-        await axios.delete(`http://localhost:3001/api/v1/admin/comment/${commentId}`, {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/comment/${commentId}`, {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.fetchComments();

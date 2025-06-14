@@ -33,7 +33,7 @@ export default {
   methods: {
     async login() {
       try {
-        const res = await axios.post('http://localhost:3001/api/v1/admin/login', {
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/login`, {
           email: this.email,
           password: this.password
         });

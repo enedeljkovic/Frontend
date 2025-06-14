@@ -159,10 +159,8 @@ export default {
         }
       } else {
         try {
-          const token = localStorage.getItem('user-token');
           await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites`, {
             recipeId: recipe.id
-            { headers: { Authorization: `Bearer ${token}` } }
           });
           this.favorites.push({
             ...recipe,

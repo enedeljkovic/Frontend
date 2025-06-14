@@ -104,7 +104,7 @@ export default {
   methods: {
     async fetchRecipes() {
       try {
-        const response = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/recipes');
+        const response = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/recipes`);
         this.recipes = response.data.recipes.map(r => ({
           ...r,
           ingredients:
@@ -132,7 +132,7 @@ export default {
     },
     async fetchSearchHistory() {
       try {
-        const res = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/history');
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/history`);
         this.searchHistory = res.data.searchHistory || [];
       } catch (error) {
         console.error('Greška pri dohvaćanju povijesti:', error);
@@ -159,9 +159,10 @@ export default {
         }
       } else {
         try {
+          const token = localStorage.getItem('user-token');
           await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites`, {
             recipeId: recipe.id
-            Authorization: Bearer <token>
+            { headers: { Authorization: `Bearer ${token}` } }
           });
           this.favorites.push({
             ...recipe,

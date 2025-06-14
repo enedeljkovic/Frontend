@@ -69,22 +69,22 @@ export default {
   async mounted() {
     const token = localStorage.getItem('user-token');
     try {
-      const userRes = await axios.get('http://localhost:3001/api/v1/profile', {
+      const profile = await axios.get('http://localhost:3001/api/v1/profile', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      this.user = userRes.data.user;
+      this.user = profile.data.user;
 
-      const favRes = await axios.get('http://localhost:3001/api/v1/favorites/count', {
+      const favs = await axios.get('http://localhost:3001/api/v1/favorites/count', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      this.favoriteCount = favRes.data.count;
+      this.favoriteCount = favs.data.count;
 
-      const searchRes = await axios.get('http://localhost:3001/api/v1/search/last', {
+      const search = await axios.get('http://localhost:3001/api/v1/search/last', {
         headers: { Authorization: `Bearer ${token}` },
       });
-      this.lastSearch = searchRes.data.lastSearch;
+      this.lastSearch = search.data.lastSearch;
     } catch (err) {
-      console.error(err);
+      console.error('Greška u dohvaćanju profila:', err);
     }
   },
   methods: {
@@ -107,23 +107,24 @@ export default {
       this.selectedImage = event.target.files[0];
     },
     async uploadProfilePicture() {
-      if (!this.selectedImage) return;
-      const token = localStorage.getItem('user-token');
-      const formData = new FormData();
-      formData.append('avatar', this.selectedImage);
-      try {
-        await axios.post('http://localhost:3001/api/v1/profile/upload-avatar', formData, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        });
-        alert('Slika postavljena!');
-        this.showImageUpload = false;
-        window.location.reload();
-      } catch (err) {
-        console.error('Greška pri uploadu slike:', err);
-      }
+  if (!this.selectedImage) return;
+  const token = localStorage.getItem('user-token');
+  const formData = new FormData();
+  formData.append('image', this.selectedImage); 
+
+  try {
+    await axios.post('http://localhost:3001/api/v1/profile/upload-avatar', formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        'Content-Type': 'multipart/form-data',
+      },
+    });
+    alert('Slika postavljena!');
+    this.showImageUpload = false;
+    window.location.reload();
+  } catch (err) {
+    console.error('Greška pri uploadu slike:', err);
+  }
     },
     logout() {
       localStorage.removeItem('user-token');
@@ -157,7 +158,6 @@ export default {
   border-radius: 20px;
   font-family: 'Segoe UI', sans-serif;
 }
-
 .profile-header {
   display: flex;
   justify-content: space-between;
@@ -165,13 +165,11 @@ export default {
   margin-bottom: 2rem;
   flex-wrap: wrap;
 }
-
 .user-info {
   display: flex;
   align-items: center;
   gap: 1rem;
 }
-
 .avatar {
   width: 64px;
   height: 64px;
@@ -179,13 +177,11 @@ export default {
   object-fit: cover;
   border: 2px solid #e67e22;
 }
-
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 1.5rem;
 }
-
 .card {
   background: #fff8f0;
   border: 1px solid #ffdcaa;
@@ -194,21 +190,17 @@ export default {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
   transition: 0.3s;
 }
-
 .card:hover {
   transform: translateY(-2px);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.1);
 }
-
 .card h2 {
   margin-bottom: 1rem;
   color: #d35400;
 }
-
 .card p {
   margin: 0.5rem 0;
 }
-
 button {
   margin-top: 1rem;
   padding: 0.6rem 1rem;
@@ -219,19 +211,15 @@ button {
   font-weight: bold;
   cursor: pointer;
 }
-
 button:hover {
   background-color: #e67e22;
 }
-
 .danger-btn {
   background-color: #e74c3c;
 }
-
 .danger-btn:hover {
   background-color: #c0392b;
 }
-
 input[type='password'],
 input[type='file'] {
   margin-top: 0.8rem;
@@ -240,11 +228,9 @@ input[type='file'] {
   border-radius: 8px;
   border: 1px solid #ccc;
 }
-
 .form-section {
   margin-top: 1rem;
 }
-
 .home-button {
   background-color: #2ecc71;
   color: white;
@@ -253,7 +239,6 @@ input[type='file'] {
   text-decoration: none;
   font-weight: bold;
 }
-
 .home-button:hover {
   background-color: #27ae60;
 }

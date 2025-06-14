@@ -4,7 +4,7 @@
 
     <button @click="logoutAdmin" class="logout-button">Odjava</button>
 
-    <!-- Korisnici -->
+   
     <section>
       <h2>👥 Korisnici</h2>
       <table>
@@ -27,7 +27,7 @@
       </table>
     </section>
 
-    <!-- Recepti -->
+   
     <section>
       <h2>🍽️ Recepti</h2>
       <table>
@@ -52,7 +52,7 @@
       </table>
     </section>
 
-    <!-- Komentari -->
+    
     <section>
       <h2>💬 Komentari</h2>
       <table>

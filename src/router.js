@@ -5,10 +5,16 @@ import Register from './views/Register.vue'
 import Home from './views/Home.vue'
 import AddRecipe from './views/AddRecipe.vue'
 import RecipeDetails from './views/RecipeDetails.vue'  
+import LoginAdmin from './views/LoginAdmin.vue';
+import AdminPanel from './views/AdminPanel.vue';
 
 const routes = [
   {
-    path: '/',
+  path: '/',
+  redirect: '/login'
+},
+  {
+    path: '/login',
     name: 'Login',
     component: Login
   },
@@ -36,7 +42,17 @@ const routes = [
     path: '/recipe/:id',
     name: 'RecipeDetails',
     component: RecipeDetails   
-  }
+  },
+  {
+    path: '/admin-login',
+    name: 'AdminLogin',
+    component: LoginAdmin
+  },
+  {
+  path: '/admin-panel',
+  name: 'AdminPanel',
+  component: AdminPanel
+}
 ];
 
 const router = createRouter({

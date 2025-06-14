@@ -50,23 +50,22 @@ export default {
     };
   },
   methods: {
-    async handleLogin() {
-      try {
-        const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/login`, {
-          email: this.email,
-          password: this.password,
-          Authorization: Bearer <token>
-        });
+  async handleLogin() {
+    try {
+      const response = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/login`, {
+        email: this.email,
+        password: this.password
+      });
 
-        if (response.data.token) {
-          localStorage.setItem('user-token', response.data.token);
-          this.$router.push('/profile');
-        }
-      } catch (error) {
-        console.error('Greška pri prijavi', error);
-        this.errorMessage = 'Neispravni podaci za prijavu!';
+      if (response.data.token) {
+        localStorage.setItem('user-token', response.data.token);
+        this.$router.push('/profile');
       }
-    },
+    } catch (error) {
+      console.error('Greška pri prijavi', error);
+      this.errorMessage = 'Neispravni podaci za prijavu!';
+    }
+  },
   },
 };
 </script>

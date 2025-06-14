@@ -161,6 +161,7 @@ export default {
         try {
           await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites`, {
             recipeId: recipe.id
+            Authorization: Bearer <token>
           });
           this.favorites.push({
             ...recipe,

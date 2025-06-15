@@ -2,7 +2,7 @@
   <div class="profile-container">
     <div class="profile-header">
       <div class="user-info">
-        <img v-if="user.avatarUrl" :src="'http://localhost:3001' + user.avatarUrl" alt="Avatar" class="avatar" />
+        <img v-if="user.avatarUrl" :src="'${import.meta.env.VITE_API_BASE_URL}' + user.avatarUrl" alt="Avatar" class="avatar" />
         <h1>👤 {{ user.name || 'Korisnik' }}</h1>
       </div>
       <router-link to="/home" class="home-button">🏠 Početna</router-link>
@@ -69,17 +69,17 @@ export default {
   async mounted() {
     const token = localStorage.getItem('user-token');
     try {
-      const profile = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/profile', {
+      const profile = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/profile`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       this.user = profile.data.user;
 
-      const favs = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/favorites/count', {
+      const favs = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/count`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       this.favoriteCount = favs.data.count;
 
-      const search = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/search/last', {
+      const search = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/search/last`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       this.lastSearch = search.data.lastSearch;
@@ -91,11 +91,10 @@ export default {
     async changePassword() {
       try {
         const token = localStorage.getItem('user-token');
-        await axios.post(
-          '${import.meta.env.VITE_API_BASE_URL}/api/v1/profile/change-password',
+        await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/profile/change-password`,
           { newPassword: this.newPassword },
           { headers: { Authorization: `Bearer ${token}` } }
-        );
+      );
         alert('Lozinka promijenjena');
         this.newPassword = '';
         this.showPasswordChange = false;
@@ -113,7 +112,7 @@ export default {
   formData.append('image', this.selectedImage); 
 
   try {
-    await axios.post('${import.meta.env.VITE_API_BASE_URL}/api/v1/profile/upload-avatar', formData, {
+    await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/profile/upload-avatar`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
         'Content-Type': 'multipart/form-data',
@@ -135,7 +134,7 @@ export default {
       if (!confirmDelete) return;
       const token = localStorage.getItem('user-token');
       try {
-        await axios.delete('${import.meta.env.VITE_API_BASE_URL}/api/v1/delete-account', {
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/delete-account`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         alert('Račun obrisan.');

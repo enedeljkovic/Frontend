@@ -116,7 +116,7 @@ export default {
     },
     async fetchRecipes() {
       try {
-        const res = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/recipes', {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/recipes`, {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.recipes = res.data.recipes;
@@ -137,7 +137,7 @@ export default {
     },
     async fetchComments() {
       try {
-        const res = await axios.get('${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/comments', {
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/admin/comments`, {
           headers: { Authorization: `Bearer ${this.adminToken}` },
         });
         this.comments = res.data.comments;

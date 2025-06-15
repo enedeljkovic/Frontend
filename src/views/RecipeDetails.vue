@@ -120,7 +120,7 @@ export default {
     async fetchRecipe() {
       const id = this.$route.params.id;
       try {
-        const res = await axios.get(`http://localhost:3001/api/v1/recipes/${id}`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/recipes/${id}`);
         const r = res.data.recipe;
         this.recipe = {
           ...r,
@@ -152,7 +152,7 @@ export default {
     },
     async fetchComments() {
       try {
-        const res = await axios.get(`http://localhost:3001/api/v1/recipes/${this.recipe.id}/comments`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/recipes/${this.recipe.id}/comments`);
         this.comments = res.data.comments;
       } catch (err) {
         console.error('Greška pri dohvaćanju komentara:', err);
@@ -160,7 +160,7 @@ export default {
     },
     async checkIfFavorite() {
       try {
-        const res = await axios.get(`http://localhost:3001/api/v1/user/${this.userId}/favorites`);
+        const res = await axios.get(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites`);
         this.isFavorite = res.data.favorites.some(f => f.id === this.recipe.id);
       } catch (err) {
         console.error('Greška pri dohvaćanju favorita:', err);
@@ -168,7 +168,7 @@ export default {
     },
     async addToFavorites() {
       try {
-        await axios.post(`http://localhost:3001/api/v1/user/${this.userId}/favorites`, {
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites`, {
           recipeId: this.recipe.id
         });
         this.isFavorite = true;
@@ -178,7 +178,7 @@ export default {
     },
     async removeFromFavorites() {
       try {
-        await axios.delete(`http://localhost:3001/api/v1/user/${this.userId}/favorites/${this.recipe.id}`);
+        await axios.delete(`${import.meta.env.VITE_API_BASE_URL}/api/v1/user/${this.userId}/favorites/${this.recipe.id}`);
         this.isFavorite = false;
       } catch (err) {
         console.error('Greška pri uklanjanju iz omiljenih:', err);
@@ -186,7 +186,7 @@ export default {
     },
     async saveToHistory() {
       try {
-        await axios.post('http://localhost:3001/api/v1/history', {
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/history`, {
           ingredientsList: this.recipe.ingredients
         });
         alert('Recept spremljen u povijest!');
@@ -195,7 +195,7 @@ export default {
       }
     },
     getRecipeImage(recipe) {
-      if (recipe.image_url) return `http://localhost:3001${recipe.image_url}`;
+      if (recipe.image_url) return `${import.meta.env.VITE_API_BASE_URL}${recipe.image_url}`;
       const cat = recipe.category.toLowerCase();
       if (cat.includes('vegan')) return '/images/vegan.jpg';
       if (cat.includes('vegetar')) return '/images/vegetarian.jpg';
@@ -205,7 +205,7 @@ export default {
     },
     async submitComment() {
       try {
-        const res = await axios.post(`http://localhost:3001/api/v1/recipes/${this.recipe.id}/comments`, {
+        const res = await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/recipes/${this.recipe.id}/comments`, {
           content: this.newComment.content,
           rating: this.newComment.rating
         });
@@ -295,3 +295,4 @@ button:hover {
   border-radius: 8px;
 }
 </style>
+

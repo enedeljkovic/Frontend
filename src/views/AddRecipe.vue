@@ -80,7 +80,7 @@ export default {
       formData.append('ingredients', JSON.stringify(ingredientsArray));
 
       try {
-        await axios.post('http://localhost:3001/api/v1/recipes', formData, {
+        await axios.post(`${import.meta.env.VITE_API_BASE_URL}/api/v1/recipes`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' }
         });
 
